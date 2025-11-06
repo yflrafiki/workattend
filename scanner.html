@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Attendance System</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    .status-card { border-left: 4px solid; margin-bottom: 20px; }
+    .status-arrived { border-left-color: #28a745; }
+    .status-completed { border-left-color: #17a2b8; }
+    .status-none { border-left-color: #6c757d; }
+    .attendance-btn { padding: 20px; font-size: 1.2rem; margin: 10px 0; }
+    .time-display { font-size: 1.1rem; font-weight: bold; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="row justify-content-center">
+      <div class="col-md-8">
+        <div class="card mt-4">
+          <div class="card-header bg-primary text-white">
+            <h4 class="mb-0">
+              <i class="fas fa-user-check"></i> Attendance System
+              <small class="float-end">Welcome, <span id="userName">Guest</span></small>
+            </h4>
+          </div>
+
+          <div class="card-body">
+            <!-- User Status -->
+            <div class="alert alert-info">
+              <div class="row">
+                <div class="col-md-6">
+                  <strong>👤 User:</strong> <span id="userLabel">Guest</span>
+                </div>
+                <div class="col-md-6">
+                  <strong>⏰ Current Time:</strong>
+                  <span class="time-display" id="currentTime"></span>
+                </div>
+              </div>
+            </div>
+
+            <!-- Attendance Status -->
+            <div id="attendanceStatusCard" class="card status-card status-none">
+              <div class="card-body">
+                <h5>📊 Today's Attendance Status</h5>
+                <p class="text-muted">
+                  <i class="fas fa-clock me-2"></i>No attendance recorded for today
+                </p>
+                <p class="text-success">
+                  <i class="fas fa-info-circle me-2"></i>You can mark your arrival now (6:00 AM - 5:00 PM)
+                </p>
+              </div>
+            </div>
+
+            <!-- Time Info -->
+            <div id="timeInfo" class="alert alert-success">
+              <div class="d-flex align-items-center">
+                <i class="fas fa-sun fa-2x me-3"></i>
+                <div>
+                  <strong>Working Hours (6:00 AM - 5:00 PM)</strong><br>
+                  <span id="currentTimeLabel"></span><br>
+                  <small>You can mark arrival and work until 5:00 PM</small>
+                </div>
+              </div>
+            </div>
+
+            <!-- Attendance Button -->
+            <div class="text-center mt-4">
+              <button id="attendanceButton" class="btn btn-primary btn-lg attendance-btn w-100" onclick="markAttendance()">
+                <i class="fas fa-fingerprint me-2"></i>Mark Arrival
+              </button>
+              <p class="text-muted mt-2">
+                <small>Your location will be verified automatically (Company: 5.697855, -0.176617)</small>
+              </p>
+            </div>
+
+            <!-- Message Output -->
+            <div id="message"></div>
+
+            <!-- Quick Actions -->
+            <div class="text-center mt-4">
+              <a href="index.html" class="btn btn-outline-primary">
+                <i class="fas fa-home me-2"></i>Back to Home
+              </a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // Display real-time clock
+    function updateTime() {
+      const now = new Date();
+      const timeString = now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+      document.getElementById('currentTime').textContent = timeString;
+      document.getElementById('currentTimeLabel').textContent = "Current time: " + timeString;
+    }
+    setInterval(updateTime, 1000);
+    updateTime();
+
+    // Example user and attendance simulation
+    const user = {
+      name: "John Doe",
+      status: "none", // can be 'none', 'arrived', or 'completed'
+      arrivalTime: null,
+      departureTime: null
+    };
+
+    document.getElementById('userName').textContent = user.name;
+    document.getElementById('userLabel').textContent = user.name;
+
+    // Mark attendance
+    function markAttendance() {
+      if (user.status === "none") {
+        markArrival();
+      } else if (user.status === "arrived") {
+        markDeparture();
+      }
+    }
+
+    function markArrival() {
+      if (!navigator.geolocation) {
+        showMessage("error", "❌ Geolocation not supported by this browser.");
+        return;
+      }
+      showLoading();
+
+      navigator.geolocation.getCurrentPosition(
+        (pos) => {
+          user.status = "arrived";
+          user.arrivalTime = new Date().toLocaleTimeString();
+          updateAttendanceStatus();
+          showMessage("success", "✅ Arrival marked successfully at " + user.arrivalTime);
+        },
+        (err) => {
+          showMessage("error", "❌ Failed to get location. Please enable GPS.");
+          resetButton();
+        }
+      );
+    }
+
+    function markDeparture() {
+      showLoading();
+      setTimeout(() => {
+        user.status = "completed";
+        user.departureTime = new Date().toLocaleTimeString();
+        updateAttendanceStatus();
+        showMessage("success", "✅ Departure marked successfully at " + user.departureTime);
+      }, 1500);
+    }
+
+    // Update card based on attendance status
+    function updateAttendanceStatus() {
+      const card = document.getElementById('attendanceStatusCard');
+      const button = document.getElementById('attendanceButton');
+
+      if (user.status === "none") {
+        card.className = "card status-card status-none";
+        card.querySelector('.card-body').innerHTML = `
+          <h5>📊 Today's Attendance Status</h5>
+          <p class="text-muted"><i class="fas fa-clock me-2"></i>No attendance recorded for today</p>
+          <p class="text-success"><i class="fas fa-info-circle me-2"></i>You can mark your arrival now</p>`;
+        button.innerHTML = `<i class="fas fa-fingerprint me-2"></i>Mark Arrival`;
+        button.disabled = false;
+
+      } else if (user.status === "arrived") {
+        card.className = "card status-card status-arrived";
+        card.querySelector('.card-body').innerHTML = `
+          <h5>📊 Today's Attendance Status</h5>
+          <p class="text-success"><i class="fas fa-check-circle me-2"></i>Arrival recorded at ${user.arrivalTime}</p>
+          <p class="text-warning"><i class="fas fa-info-circle me-2"></i>Departure can be marked after 5:00 PM</p>`;
+        button.innerHTML = `<i class="fas fa-fingerprint me-2"></i>Mark Departure`;
+        button.disabled = false;
+
+      } else if (user.status === "completed") {
+        card.className = "card status-card status-completed";
+        card.querySelector('.card-body').innerHTML = `
+          <h5>📊 Today's Attendance Status</h5>
+          <p class="text-info"><i class="fas fa-check-double me-2"></i>Attendance completed for today</p>
+          <p>Arrival: ${user.arrivalTime} | Departure: ${user.departureTime}</p>`;
+        button.style.display = "none";
+      }
+    }
+
+    // Show loading spinner
+    function showLoading() {
+      const button = document.getElementById('attendanceButton');
+      button.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Checking Location...';
+      button.disabled = true;
+    }
+
+    function resetButton() {
+      const button = document.getElementById('attendanceButton');
+      button.disabled = false;
+      button.innerHTML = user.status === "arrived"
+        ? '<i class="fas fa-fingerprint me-2"></i>Mark Departure'
+        : '<i class="fas fa-fingerprint me-2"></i>Mark Arrival';
+    }
+
+    // Message display
+    function showMessage(type, message) {
+      const msg = document.getElementById('message');
+      const alertClass = type === 'success' ? 'alert-success' : 'alert-danger';
+      const icon = type === 'success' ? 'fa-check-circle' : 'fa-exclamation-triangle';
+      msg.innerHTML = `
+        <div class="alert ${alertClass} alert-dismissible fade show mt-3">
+          <i class="fas ${icon} me-2"></i>${message}
+          <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>`;
+      resetButton();
+    }
+
+    updateAttendanceStatus();
+  </script>
+</body>
+</html>

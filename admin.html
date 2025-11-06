@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Admin Panel - User Approval</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body>
+  <div class="container-fluid">
+    <div class="row">
+      <div class="col-12">
+
+        <!-- Navbar -->
+        <nav class="navbar navbar-dark bg-dark">
+          <div class="container-fluid">
+            <span class="navbar-brand">Admin Panel - User Approval</span>
+            <a href="admin_logout.php" class="btn btn-outline-light btn-sm">Logout</a>
+          </div>
+        </nav>
+
+        <!-- Success Message -->
+        {{SUCCESS_MESSAGE}}
+
+        <!-- Pending Approval Section -->
+        <div class="card mt-4">
+          <div class="card-header bg-warning">
+            <h5 class="mb-0">
+              Pending Approval ({{PENDING_COUNT}})
+            </h5>
+          </div>
+          <div class="card-body">
+            {{PENDING_USERS_TABLE}}
+          </div>
+        </div>
+
+        <!-- Approved Users Section -->
+        <div class="card mt-4">
+          <div class="card-header bg-success text-white">
+            <h5 class="mb-0">
+              Approved Users ({{APPROVED_COUNT}})
+            </h5>
+          </div>
+          <div class="card-body">
+            {{APPROVED_USERS_TABLE}}
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+  <!-- Template Examples -->
+  <template id="pending-users-template">
+    <div class="table-responsive">
+      <table class="table table-striped">
+        <thead>
+          <tr>
+            <th>Name</th>
+            <th>Email</th>
+            <th>Phone</th>
+            <th>Status</th>
+            <th>Registered</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          {{PENDING_ROWS}}
+        </tbody>
+      </table>
+    </div>
+  </template>
+
+  <template id="approved-users-template">
+    <div class="table-responsive">
+      <table class="table table-striped">
+        <thead>
+          <tr>
+            <th>Name</th>
+            <th>Email</th>
+            <th>Phone</th>
+            <th>Status</th>
+            <th>Approved By</th>
+            <th>Approved At</th>
+          </tr>
+        </thead>
+        <tbody>
+          {{APPROVED_ROWS}}
+        </tbody>
+      </table>
+    </div>
+  </template>
+
+  <!-- Example Row Templates -->
+  <template id="pending-row-template">
+    <tr>
+      <td>{{NAME}}</td>
+      <td>{{EMAIL}}</td>
+      <td>{{PHONE}}</td>
+      <td>{{STATUS}}</td>
+      <td>{{REGISTERED_AT}}</td>
+      <td>
+        <button class="btn btn-success btn-sm" onclick="approveUser('{{USER_ID}}')">Approve</button>
+        <button class="btn btn-danger btn-sm" onclick="rejectUser('{{USER_ID}}')">Reject</button>
+      </td>
+    </tr>
+  </template>
+
+  <template id="approved-row-template">
+    <tr>
+      <td>{{NAME}}</td>
+      <td>{{EMAIL}}</td>
+      <td>{{PHONE}}</td>
+      <td>{{STATUS}}</td>
+      <td>{{APPROVED_BY}}</td>
+      <td>{{APPROVED_AT}}</td>
+    </tr>
+  </template>
+
+  <script>
+    // Optional demo logic (you can remove this if backend will fill these placeholders)
+    document.body.innerHTML = document.body.innerHTML
+      .replace('{{SUCCESS_MESSAGE}}', '')
+      .replace('{{PENDING_COUNT}}', '3')
+      .replace('{{APPROVED_COUNT}}', '5')
+      .replace('{{PENDING_USERS_TABLE}}', `
+        <div class="table-responsive">
+          <table class="table table-striped">
+            <thead>
+              <tr>
+                <th>Name</th><th>Email</th><th>Phone</th><th>Status</th><th>Registered</th><th>Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>John Doe</td><td>john@example.com</td><td>+233123456</td><td>Staff</td><td>Nov 5, 2025</td>
+                <td>
+                  <button class="btn btn-success btn-sm">Approve</button>
+                  <button class="btn btn-danger btn-sm">Reject</button>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      `)
+      .replace('{{APPROVED_USERS_TABLE}}', `
+        <div class="table-responsive">
+          <table class="table table-striped">
+            <thead>
+              <tr>
+                <th>Name</th><th>Email</th><th>Phone</th><th>Status</th><th>Approved By</th><th>Approved At</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>Jane Smith</td><td>jane@example.com</td><td>+233987654</td><td>Intern</td>
+                <td>Admin</td><td>Nov 4, 2025</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      `);
+
+    // Example placeholder functions
+    function approveUser(id) {
+      alert('✅ Approved user ' + id);
+    }
+    function rejectUser(id) {
+      alert('❌ Rejected user ' + id);
+    }
+  </script>
+</body>
+</html>

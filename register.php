@@ -10,7 +10,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $password = $_POST['password'];
     $confirm_password = $_POST['confirm_password'];
 
-    // Validate inputs
+    // Validation
     if (empty($name) || empty($email) || empty($phone) || empty($status) || empty($password)) {
         $_SESSION['error'] = "⚠️ Please fill in all fields!";
         header("Location: register.php");
@@ -36,111 +36,52 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 
     try {
-        // Check if email already exists
         $stmt = $pdo->prepare("SELECT id FROM users WHERE email = ?");
         $stmt->execute([$email]);
-        
+
         if ($stmt->rowCount() > 0) {
             $_SESSION['error'] = "⚠️ This email is already registered!";
             header("Location: register.php");
             exit();
         }
 
-        // Generate device ID
         $device_id = 'device_' . uniqid() . '_' . bin2hex(random_bytes(8));
-        
-        // Hash password
         $password_hash = password_hash($password, PASSWORD_DEFAULT);
-        
-        // Insert user
-        $stmt = $pdo->prepare("INSERT INTO users (name, email, phone, status, password_hash, device_id) VALUES (?, ?, ?, ?, ?, ?)");
+
+        $stmt = $pdo->prepare("INSERT INTO users (name, email, phone, status, password_hash, device_id)
+                               VALUES (?, ?, ?, ?, ?, ?)");
         $stmt->execute([$name, $email, $phone, $status, $password_hash, $device_id]);
-        
-        $_SESSION['success'] = "✅ Registration successful! Please wait for admin approval. You will receive an email when your account is approved.";
+
+        $_SESSION['success'] = "✅ Registration successful! Please wait for admin approval.";
         header("Location: register.php");
         exit();
-        
-    } catch(PDOException $e) {
+
+    } catch (PDOException $e) {
         $_SESSION['error'] = "⚠️ System error. Please try again.";
         error_log("Registration error: " . $e->getMessage());
+        header("Location: register.php");
+        exit();
     }
 }
-?>
 
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Register - Attendance System</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-</head>
-<body>
-    <div class="container">
-        <div class="row justify-content-center">
-            <div class="col-md-6">
-                <div class="card mt-5">
-                    <div class="card-header bg-primary text-white">
-                        <h4 class="mb-0">Create Account</h4>
-                    </div>
-                    <div class="card-body">
-                        <?php if (isset($_SESSION['success'])): ?>
-                            <div class="alert alert-success"><?php echo $_SESSION['success']; unset($_SESSION['success']); ?></div>
-                        <?php endif; ?>
-                        
-                        <?php if (isset($_SESSION['error'])): ?>
-                            <div class="alert alert-danger"><?php echo $_SESSION['error']; unset($_SESSION['error']); ?></div>
-                        <?php endif; ?>
+// Load HTML template
+$template = file_get_contents('register.html');
 
-                        <form method="POST">
-                            <div class="mb-3">
-                                <label class="form-label">Full Name *</label>
-                                <input type="text" class="form-control" name="name" required 
-                                       value="<?php echo isset($_POST['name']) ? htmlspecialchars($_POST['name']) : ''; ?>">
-                            </div>
-                            
-                            <div class="mb-3">
-                                <label class="form-label">Email *</label>
-                                <input type="email" class="form-control" name="email" required
-                                       value="<?php echo isset($_POST['email']) ? htmlspecialchars($_POST['email']) : ''; ?>">
-                            </div>
-                            
-                            <div class="mb-3">
-                                <label class="form-label">Phone Number *</label>
-                                <input type="tel" class="form-control" name="phone" required
-                                       value="<?php echo isset($_POST['phone']) ? htmlspecialchars($_POST['phone']) : ''; ?>">
-                            </div>
-                            
-                            <div class="mb-3">
-                                <label class="form-label">Status *</label>
-                                <select class="form-select" name="status" required>
-                                    <option value="">Select your status</option>
-                                    <option value="Staff" <?php echo (isset($_POST['status']) && $_POST['status'] == 'Staff') ? 'selected' : ''; ?>>Staff</option>
-                                    <option value="Intern" <?php echo (isset($_POST['status']) && $_POST['status'] == 'Intern') ? 'selected' : ''; ?>>Intern</option>
-                                </select>
-                            </div>
-                            
-                            <div class="mb-3">
-                                <label class="form-label">Password *</label>
-                                <input type="password" class="form-control" name="password" required>
-                                <div class="form-text">Minimum 6 characters</div>
-                            </div>
-                            
-                            <div class="mb-3">
-                                <label class="form-label">Confirm Password *</label>
-                                <input type="password" class="form-control" name="confirm_password" required>
-                            </div>
-                            
-                            <button type="submit" class="btn btn-primary w-100">Register Account</button>
-                        </form>
-                        
-                        <div class="text-center mt-3">
-                            <a href="login.php">Already have an account? Login</a>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-</body>
-</html>
+// Inject flash messages
+$success = $_SESSION['success'] ?? '';
+$error = $_SESSION['error'] ?? '';
+unset($_SESSION['success'], $_SESSION['error']);
+
+// Inject previous input values
+$fields = [
+    '{{NAME}}' => htmlspecialchars($_POST['name'] ?? ''),
+    '{{EMAIL}}' => htmlspecialchars($_POST['email'] ?? ''),
+    '{{PHONE}}' => htmlspecialchars($_POST['phone'] ?? ''),
+    '{{STATUS_SELECTED_STAFF}}' => (isset($_POST['status']) && $_POST['status'] == 'Staff') ? 'selected' : '',
+    '{{STATUS_SELECTED_INTERN}}' => (isset($_POST['status']) && $_POST['status'] == 'Intern') ? 'selected' : '',
+    '{{SUCCESS}}' => $success ? "<div class='alert alert-success'>$success</div>" : '',
+    '{{ERROR}}' => $error ? "<div class='alert alert-danger'>$error</div>" : ''
+];
+
+// Replace placeholders
+echo str_replace(array_keys($fields), array_values($fields), $template);

@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>User Approval - Admin Panel</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+</head>
+<body>
+  <div class="container-fluid">
+    <!-- Header -->
+    <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
+      <div class="container">
+        <a class="navbar-brand" href="#">
+          <i class="fas fa-tachometer-alt me-2"></i>Admin Panel
+        </a>
+        <div class="navbar-nav ms-auto">
+          <span class="navbar-text me-3">
+            <i class="fas fa-user me-1"></i>Welcome, AdminUser
+          </span>
+          <a href="dashboard.html" class="btn btn-outline-light btn-sm me-2">
+            <i class="fas fa-arrow-left me-1"></i>Back to Dashboard
+          </a>
+          <a href="#" class="btn btn-outline-light btn-sm">
+            <i class="fas fa-sign-out-alt me-1"></i>Logout
+          </a>
+        </div>
+      </div>
+    </nav>
+
+    <div class="container mt-4">
+      <!-- Success message (example) -->
+      <div class="alert alert-success">
+        All pending users have been approved successfully!
+      </div>
+
+      <!-- Pending Approval -->
+      <div class="card">
+        <div class="card-header bg-warning">
+          <div class="d-flex justify-content-between align-items-center">
+            <h5 class="mb-0">
+              <i class="fas fa-clock me-2"></i>
+              Pending Approval (3)
+            </h5>
+            <form class="d-inline">
+              <button type="button" class="btn btn-success btn-sm">
+                <i class="fas fa-check-double me-1"></i>Approve All
+              </button>
+            </form>
+          </div>
+        </div>
+        <div class="card-body">
+          <div class="table-responsive">
+            <table class="table table-striped">
+              <thead>
+                <tr>
+                  <th width="50">
+                    <input type="checkbox" id="selectAll" onchange="toggleSelectAll(this)" />
+                  </th>
+                  <th>Name</th>
+                  <th>Email</th>
+                  <th>Phone</th>
+                  <th>Status</th>
+                  <th>Registered</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td><input type="checkbox" class="user-checkbox" /></td>
+                  <td>John Doe</td>
+                  <td>john@example.com</td>
+                  <td>+233 555 123 456</td>
+                  <td><span class="badge bg-primary">Staff</span></td>
+                  <td>Nov 4, 2025 10:32 AM</td>
+                  <td>
+                    <button type="button" class="btn btn-success btn-sm">
+                      <i class="fas fa-check me-1"></i>Approve
+                    </button>
+                    <button type="button" class="btn btn-danger btn-sm">
+                      <i class="fas fa-times me-1"></i>Reject
+                    </button>
+                  </td>
+                </tr>
+                <tr>
+                  <td><input type="checkbox" class="user-checkbox" /></td>
+                  <td>Jane Smith</td>
+                  <td>jane@example.com</td>
+                  <td>+233 555 987 654</td>
+                  <td><span class="badge bg-success">Intern</span></td>
+                  <td>Nov 5, 2025 8:45 AM</td>
+                  <td>
+                    <button type="button" class="btn btn-success btn-sm">
+                      <i class="fas fa-check me-1"></i>Approve
+                    </button>
+                    <button type="button" class="btn btn-danger btn-sm">
+                      <i class="fas fa-times me-1"></i>Reject
+                    </button>
+                  </td>
+                </tr>
+                <tr>
+                  <td><input type="checkbox" class="user-checkbox" /></td>
+                  <td>Michael Brown</td>
+                  <td>michael@example.com</td>
+                  <td>+233 555 222 333</td>
+                  <td><span class="badge bg-primary">Staff</span></td>
+                  <td>Nov 5, 2025 2:10 PM</td>
+                  <td>
+                    <button type="button" class="btn btn-success btn-sm">
+                      <i class="fas fa-check me-1"></i>Approve
+                    </button>
+                    <button type="button" class="btn btn-danger btn-sm">
+                      <i class="fas fa-times me-1"></i>Reject
+                    </button>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- Approved Users -->
+      <div class="card mt-4">
+        <div class="card-header bg-success text-white">
+          <h5 class="mb-0">
+            <i class="fas fa-check-circle me-2"></i>
+            Approved Users (5)
+          </h5>
+        </div>
+        <div class="card-body">
+          <div class="table-responsive">
+            <table class="table table-striped">
+              <thead>
+                <tr>
+                  <th>Name</th>
+                  <th>Email</th>
+                  <th>Phone</th>
+                  <th>Status</th>
+                  <th>Approved By</th>
+                  <th>Approved At</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>Sarah Johnson</td>
+                  <td>sarah@example.com</td>
+                  <td>+233 555 444 999</td>
+                  <td><span class="badge bg-primary">Staff</span></td>
+                  <td>AdminUser</td>
+                  <td>Nov 3, 2025 4:30 PM</td>
+                </tr>
+                <tr>
+                  <td>David Lee</td>
+                  <td>david@example.com</td>
+                  <td>+233 555 888 000</td>
+                  <td><span class="badge bg-success">Intern</span></td>
+                  <td>AdminUser</td>
+                  <td>Nov 2, 2025 11:20 AM</td>
+                </tr>
+                <tr>
+                  <td>Maria Kim</td>
+                  <td>maria@example.com</td>
+                  <td>+233 555 777 111</td>
+                  <td><span class="badge bg-success">Intern</span></td>
+                  <td>System</td>
+                  <td>Nov 1, 2025 9:15 AM</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    function toggleSelectAll(source) {
+      const checkboxes = document.getElementsByClassName('user-checkbox');
+      for (let checkbox of checkboxes) {
+        checkbox.checked = source.checked;
+      }
+    }
+  </script>
+</body>
+</html>
